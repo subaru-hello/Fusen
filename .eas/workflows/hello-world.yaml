@@ -1,10 +1,17 @@
-name: Hello World
+name: Release iOS app
 
 on:
   push:
     branches: ["*"]
 
 jobs:
-  Hello World:
-    steps:
-      - run: echo "Hello, World"
+  build:
+    type: build
+    params:
+      platform: ios
+      profile: production
+  submit:
+    needs: [build]
+    type: submit
+    params:
+      build_id: ${{ needs.build.outputs.build_id }}
