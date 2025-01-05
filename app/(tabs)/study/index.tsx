@@ -1,48 +1,22 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-} from "react-native";
-import { Link, useRouter } from "expo-router";
-import { storage } from "../create";
+import { View, Text, FlatList, StyleSheet, Image } from "react-native";
+import { Link } from "expo-router";
+import { NON_CUSTOMER_FLASH_CARD_KEY } from "@/constants";
+import { storage } from "@/lib/storage";
+import { TImage } from "@/types";
 
-const STORAGE_KEY = "@myFlashcardImages";
-export type TMask = { x1: number; y1: number; x2: number; y2: number };
-export type TImage = {
-  id: number;
-  uri: string;
-  masks: TMask[];
-};
 export default function StudyListScreen() {
   const [imageList, setImageList] = useState<TImage[]>([]);
-  const router = useRouter();
 
   const fetchImages = () => {
-    const storedData = storage.getString(STORAGE_KEY);
+    const storedData = storage.getString(NON_CUSTOMER_FLASH_CARD_KEY);
     const images = storedData ? JSON.parse(storedData) : [];
     setImageList(images);
   };
 
   useEffect(() => {
-    // const unsubscribe = router.addListener("focus", fetchImages);
     fetchImages();
-    // Expo RouterにはNavigationイベントがないので、実際はuseFocusEffectなど
-    // あるいは画面に戻ってきたタイミングで再描画されるようにする
-    return () => {
-      // もしイベントがあるならdetach
-    };
   }, []);
-
-  const handlePressItem = (item: any) => {
-    // detail画面へ遷移。クエリパラメータを付ける例
-    router.push({
-      pathname: "/(tabs)/study/[id]",
-      params: { id: item.id, item: item },
-    });
-  };
 
   if (imageList.length === 0) {
     return (
@@ -58,20 +32,22 @@ export default function StudyListScreen() {
         data={imageList}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
-          <Link
-            key={item.id}
-            href={{
-              pathname: "/(tabs)/study/[id]",
-              params: { id: item.id },
-            }}
-          >
-            <TouchableOpacity
-              style={styles.item}
-              onPress={() => handlePressItem(item)}
+          <View style={{ display: "flex" }}>
+            <Link
+              key={item.id}
+              href={{
+                pathname: "/(tabs)/study/[id]",
+                params: { id: item.id },
+              }}
             >
-              <Text>画像ID: {item.id}</Text>
-            </TouchableOpacity>
-          </Link>
+              <Text style={styles.item}>画像ID: {item.id}</Text>
+            </Link>
+            <Image
+              source={{ uri: item.uri }}
+              style={{ width: "100%", height: "100%" }}
+              resizeMode="cover"
+            />
+          </View>
         )}
       />
     </View>

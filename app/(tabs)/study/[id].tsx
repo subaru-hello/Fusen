@@ -3,81 +3,71 @@ import {
   View,
   Image,
   StyleSheet,
-  Dimensions,
   LayoutChangeEvent,
+  GestureResponderEvent,
 } from "react-native";
-import Svg, { Rect } from "react-native-svg";
 import { useLocalSearchParams } from "expo-router";
-import { storage, STORAGE_KEY } from "../create";
-import { TImage, TMask } from "./index";
+import { NON_CUSTOMER_FLASH_CARD_KEY } from "@/constants";
+import { TImage } from "@/types";
+import { storage } from "@/lib/storage";
+import MaskedBlocks from "@/components/MaskedBlocks";
 
 export default function StudyDetailScreen() {
   const local = useLocalSearchParams();
-  const [layoutWidth, setLayoutWidth] = useState(0);
-  const [layoutHeight, setLayoutHeight] = useState(0);
 
+  const [displayedWidth, setDisplayedWidth] = useState(0);
+  const [displayedHeight, setDisplayedHeight] = useState(0);
   // Local Storage から画像を取得
   const imageData: TImage = useMemo(() => {
-    const storedData = storage.getString(STORAGE_KEY);
+    const storedData = storage.getString(NON_CUSTOMER_FLASH_CARD_KEY);
     const images: TImage[] = storedData ? JSON.parse(storedData) : [];
     const card = images.find((img) => img.id === Number(local.id));
     return card ?? { id: 0, uri: "", masks: [] };
   }, [local]);
 
-  // 四角ごとに「隠す/表示」を管理するための state
+  // 四角ごとに「隠す/表示」を管理する
   // ※ 初期値 true = 隠れてる(黒塗り)
-  const [hiddenRects, setHiddenRects] = useState<Record<number, boolean>>({});
+  const [hiddenRects, setHiddenRects] = useState<boolean[]>(
+    Array(imageData.masks.length).fill(true)
+  );
 
-  const toggleRectVisibility = (index: number) => {
-    setHiddenRects((prev) => ({ ...prev, [index]: !prev[index] }));
+  const toggleRectVisibility = (e: GestureResponderEvent, index: number) => {
+    setHiddenRects((prev) => {
+      // 配列をコピーして指定されたインデックスの値を反転
+      const newHiddenRects = [...prev];
+      newHiddenRects[index] = !newHiddenRects[index];
+      return newHiddenRects;
+    });
   };
 
-  const onContainerLayout = (e: LayoutChangeEvent) => {
-    setLayoutWidth(e.nativeEvent.layout.width);
-    setLayoutHeight(e.nativeEvent.layout.height);
+  const onImageLayout = (e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    setDisplayedWidth(width);
+    setDisplayedHeight(height);
   };
-  console.log("~~~~~~", imageData.masks);
+
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer} onLayout={onContainerLayout}>
-        {/* 画像の表示 */}
+      <View style={styles.imageContainer} onLayout={onImageLayout}>
         <Image
           source={{ uri: imageData.uri }}
           style={styles.image}
           resizeMode="contain"
         />
 
-        <Svg style={styles.svg}>
-          {imageData.masks.map((mask: TMask, index: number) => {
-            // 四隅から実際の描画サイズを求める
-            const left = Math.min(mask.x1, mask.x2) * layoutWidth;
-            const top = Math.min(mask.y1, mask.y2) * layoutHeight;
-            const width = Math.abs(mask.x2 - mask.x1) * layoutWidth;
-            const height = Math.abs(mask.y2 - mask.y1) * layoutHeight;
-
-            // hiddenRects[index]がtrueなら黒塗り、falseなら透明にするとか
-            const isHidden = hiddenRects[index] ?? true;
-            const fillColor = isHidden ? "black" : "transparent";
-
-            return (
-              <Rect
-                key={index}
-                x={left}
-                y={top}
-                width={width}
-                height={height}
-                fill={fillColor}
-                onPress={() => toggleRectVisibility(index)}
-              />
-            );
-          })}
-        </Svg>
+        <MaskedBlocks
+          imageData={imageData}
+          displayedWidth={displayedWidth}
+          displayedHeight={displayedHeight}
+          toggleRectVisibility={toggleRectVisibility}
+          hiddenRects={hiddenRects}
+        />
       </View>
     </View>
   );
 }
 
-const DEVICE_WIDTH = Dimensions.get("window").width;
+// const DEVICE_WIDTH = Dimensions.get("window").width;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -86,20 +76,13 @@ const styles = StyleSheet.create({
   imageContainer: {
     position: "relative",
     width: "100%",
-    // 例として正方形にする
-    height: DEVICE_WIDTH,
+    height: "100%",
     alignItems: "center",
     justifyContent: "center",
   },
   image: {
-    width: DEVICE_WIDTH,
-    height: DEVICE_WIDTH,
+    width: "100%",
+    height: "100%",
     zIndex: -1,
-  },
-  svg: {
-    position: "absolute",
-    width: DEVICE_WIDTH,
-    height: DEVICE_WIDTH,
-    zIndex: 2,
   },
 });

@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 
 import { View, Text, Button, Image, StyleSheet } from "react-native";
-import { MMKV } from "react-native-mmkv";
 import ImageMaskDrawer from "@/components/ImageMaskDrawer";
-
-export const storage = new MMKV();
-export const STORAGE_KEY = "@myFlashcardImages"; // ローカルストレージに保存するキー
+import { NON_CUSTOMER_FLASH_CARD_KEY } from "@/constants";
+import { storage } from "@/lib/storage";
 
 export default function CreateScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [maskedData, setMaskedData] = useState<any[]>([]);
 
+  // TODO: 会員: true。非会員: false
+  const isRegisteredMember = true;
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
@@ -33,13 +33,12 @@ export default function CreateScreen() {
 
     try {
       // 既存データの取得
-      const storedData = storage.getString(STORAGE_KEY);
+      const storedData = storage.getString(NON_CUSTOMER_FLASH_CARD_KEY);
       let images = storedData ? JSON.parse(storedData) : [];
 
       // 非会員は 1 つのみ画像を登録できる要件を考慮
-      if (images.length >= 1) {
-        // 置き換えるか、何もしないか等、要件に応じてロジックを追加
-        // ここでは例として置き換える仕様に
+      if (!isRegisteredMember) {
+        // 画像を置き換える
         images = [];
       }
 
@@ -51,7 +50,7 @@ export default function CreateScreen() {
 
       images.push(newImageData);
 
-      storage.set(STORAGE_KEY, JSON.stringify(images));
+      storage.set(NON_CUSTOMER_FLASH_CARD_KEY, JSON.stringify(images));
       alert("画像を保存しました！");
       setSelectedImage(null);
       setMaskedData([]);
@@ -69,16 +68,9 @@ export default function CreateScreen() {
         <Button title="画像をアップロード" onPress={pickImage} />
       ) : (
         <>
-          {/* <Text>選択された画像：</Text>
-          <Image
-            source={{ uri: selectedImage }}
-            style={styles.imagePreview}
-            resizeMode="contain"
-          /> */}
-
           <Button title="この画像を保存" onPress={handleSaveMaskData} />
-          <Text>マスクを描画：</Text>
-          {/* 指でなぞった部分の座標を取得するコンポーネント例 */}
+          <Text>隠したい部分をなぞってね：</Text>
+          {/* 指でなぞった部分の座標を取得するコンポーネント */}
           <ImageMaskDrawer
             imageUri={selectedImage}
             rectMasks={maskedData}

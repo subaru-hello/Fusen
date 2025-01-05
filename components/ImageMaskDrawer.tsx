@@ -36,7 +36,6 @@ export default function ImageMaskDrawerRect({
 
   // ピンチによるズーム量を管理
   const scaleValue = 1;
-  //   const [scaleValue, setScaleValue] = useState(1);
 
   // ドラッグ中の一時的な「絶対座標」(スクリーン座標)
   const startPos = useRef({ x: 0, y: 0 });
