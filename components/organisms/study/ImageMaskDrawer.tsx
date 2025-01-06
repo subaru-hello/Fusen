@@ -171,16 +171,6 @@ export default function ImageMaskDrawerRect({
             )}
           </Svg>
         </View>
-        {/* <GestureImageArea
-          imageUri={imageUri}
-          rectMasks={rectMasks}
-          onChangeMaskData={onChangeMaskData}
-          setDisplayedHeight={setDisplayedHeight}
-          setDisplayedWidth={setDisplayedWidth}
-          displayedHeight={displayedHeight}
-          displayedWidth={displayedWidth}
-          currentRect={currentRect}
-        /> */}
       </GestureDetector>
     </GestureHandlerRootView>
   );

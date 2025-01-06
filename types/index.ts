@@ -4,3 +4,9 @@ export type TImage = {
   uri: string;
   masks: TMask[];
 };
+export type RectMask = {
+  x1: number; // 相対座標（0~1）
+  y1: number;
+  x2: number;
+  y2: number;
+};

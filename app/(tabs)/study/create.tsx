@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
 
-import { View, Text, Button, Image, StyleSheet } from "react-native";
-import ImageMaskDrawer from "@/components/ImageMaskDrawer";
+import { View, Text, Button, StyleSheet } from "react-native";
+import ImageMaskDrawer from "@/components/organisms/study/ImageMaskDrawer";
 import { NON_CUSTOMER_FLASH_CARD_KEY } from "@/constants";
-import { storage } from "@/lib/storage";
+import { getValueFor, saveToLocalStorage } from "@/lib/storage";
 
 export default function CreateScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -33,7 +33,9 @@ export default function CreateScreen() {
 
     try {
       // 既存データの取得
-      const storedData = storage.getString(NON_CUSTOMER_FLASH_CARD_KEY);
+      console.log("// 既存データの取得");
+      const storedData = await getValueFor(NON_CUSTOMER_FLASH_CARD_KEY);
+      console.log("==storedData====", storedData);
       let images = storedData ? JSON.parse(storedData) : [];
 
       // 非会員は 1 つのみ画像を登録できる要件を考慮
@@ -49,9 +51,9 @@ export default function CreateScreen() {
       };
 
       images.push(newImageData);
-
-      storage.set(NON_CUSTOMER_FLASH_CARD_KEY, JSON.stringify(images));
+      saveToLocalStorage(NON_CUSTOMER_FLASH_CARD_KEY, JSON.stringify(images));
       alert("画像を保存しました！");
+      // TODO: 詳細画面へ飛ばす？
       setSelectedImage(null);
       setMaskedData([]);
     } catch (error) {
@@ -91,10 +93,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 20,
-  },
-  imagePreview: {
-    width: 200,
-    height: 200,
-    marginVertical: 10,
   },
 });
