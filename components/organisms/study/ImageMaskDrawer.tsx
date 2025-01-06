@@ -1,24 +1,19 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import {
+  StyleSheet,
+  Dimensions,
   View,
   Image,
-  StyleSheet,
   LayoutChangeEvent,
-  Dimensions,
 } from "react-native";
-import Svg, { Rect, Text } from "react-native-svg";
 import {
   Gesture,
   GestureDetector,
   GestureHandlerRootView,
 } from "react-native-gesture-handler";
 
-type RectMask = {
-  x1: number; // 相対座標（0~1）
-  y1: number;
-  x2: number;
-  y2: number;
-};
+import { RectMask } from "@/types";
+import Svg, { Rect, Text } from "react-native-svg";
 
 type Props = {
   imageUri: string;
@@ -31,12 +26,8 @@ export default function ImageMaskDrawerRect({
   rectMasks,
   onChangeMaskData,
 }: Props) {
-  const [displayedWidth, setDisplayedWidth] = useState(0);
   const [displayedHeight, setDisplayedHeight] = useState(0);
-
-  // ピンチによるズーム量を管理
-  const scaleValue = 1;
-
+  const [displayedWidth, setDisplayedWidth] = useState(0);
   // ドラッグ中の一時的な「絶対座標」(スクリーン座標)
   const startPos = useRef({ x: 0, y: 0 });
   const [currentRect, setCurrentRect] = useState<{
@@ -45,16 +36,20 @@ export default function ImageMaskDrawerRect({
     endX: number;
     endY: number;
   } | null>(null);
-  /**
-   * 画像のレイアウトが確定したときに、描画サイズを取得
-   */
+  // ピンチによるズーム量を管理
+  const scaleValue = 1;
+
   const onImageLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
     setDisplayedWidth(width);
     setDisplayedHeight(height);
   };
-
+  const handleRemoveRectangle = (id: number) => {
+    const removedRectMasks = rectMasks.filter((_, i) => i !== id);
+    onChangeMaskData(removedRectMasks);
+  };
   const panGesture = Gesture.Pan()
+    .runOnJS(true) // GestureはUIスレッドで動くためメインスレッドへアクセスするためにrunOnJSをtrueにする必要がある
     .onBegin((e) => {
       console.log("onBegin", e);
       const { x, y } = e;
@@ -73,6 +68,7 @@ export default function ImageMaskDrawerRect({
       const { x, y } = e;
       const endX = x;
       const endY = y;
+      // ドラッグ中の点線を表示させるためにonEndではなくonUpdateでcurrentRectを更新している
       if (currentRect) {
         setCurrentRect({
           startX: startPos.current.x,
@@ -110,27 +106,15 @@ export default function ImageMaskDrawerRect({
       setCurrentRect(null);
     });
 
-  const handleRemoveRectangle = (id: number) => {
-    const removedRectMasks = rectMasks.filter((_, i) => i !== id);
-    onChangeMaskData(removedRectMasks);
-  };
-
   return (
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={panGesture}>
-        <View
-          style={{
-            ...styles.imageContainer,
-            // transform: [{ scale: scaleValue }],
-          }}
-          onLayout={onImageLayout}
-        >
+        <View style={styles.container} onLayout={onImageLayout}>
           <Image
             source={{ uri: imageUri }}
             style={styles.image}
             resizeMode="contain"
           />
-          {/* <Svg style={[StyleSheet.absoluteFill]}> */}
           <Svg
             style={{
               position: "absolute",
@@ -187,6 +171,16 @@ export default function ImageMaskDrawerRect({
             )}
           </Svg>
         </View>
+        {/* <GestureImageArea
+          imageUri={imageUri}
+          rectMasks={rectMasks}
+          onChangeMaskData={onChangeMaskData}
+          setDisplayedHeight={setDisplayedHeight}
+          setDisplayedWidth={setDisplayedWidth}
+          displayedHeight={displayedHeight}
+          displayedWidth={displayedWidth}
+          currentRect={currentRect}
+        /> */}
       </GestureDetector>
     </GestureHandlerRootView>
   );
