@@ -15,16 +15,14 @@ import { getValueFor } from "@/lib/storage";
 
 export default function StudyDetailScreen() {
   const local = useLocalSearchParams();
-
   const [displayedWidth, setDisplayedWidth] = useState(0);
   const [displayedHeight, setDisplayedHeight] = useState(0);
 
-  // 四角ごとに「隠す/表示」を管理する
-  // ※ 初期値 true = 隠れてる(黒塗り)
+  // 画像 + マスク情報
   const [imageData, setImageData] = useState<TImage | null>(null);
+  // マスク(四角)ごとに隠す/表示を切り替える
   const [hiddenRects, setHiddenRects] = useState<boolean[]>([]);
 
-  // 非同期処理でデータを取得
   useEffect(() => {
     const fetchData = async () => {
       const storedData = await getValueFor(NON_CUSTOMER_FLASH_CARD_KEY);
@@ -35,22 +33,17 @@ export default function StudyDetailScreen() {
         masks: [],
       };
       setImageData(image);
-
-      // hiddenRects をマスクの数に合わせて初期化
       setHiddenRects(Array(image.masks.length).fill(true));
     };
-
     fetchData();
   }, []);
 
-  // 画像データがまだロードされていない場合
   if (!imageData) {
-    return <Text>ロード中...</Text>; // ローディング中のUI
+    return <Text>ロード中...</Text>;
   }
 
   const toggleRectVisibility = (e: GestureResponderEvent, index: number) => {
     setHiddenRects((prev) => {
-      // 配列をコピーして指定されたインデックスの値を反転
       const newHiddenRects = [...prev];
       newHiddenRects[index] = !newHiddenRects[index];
       return newHiddenRects;
@@ -59,19 +52,19 @@ export default function StudyDetailScreen() {
 
   const onImageLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
+    console.log("DetailScreen width height", width, height);
     setDisplayedWidth(width);
     setDisplayedHeight(height);
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.rootContainer}>
       <View style={styles.imageContainer} onLayout={onImageLayout}>
         <Image
           source={{ uri: imageData.uri }}
           style={styles.image}
           resizeMode="contain"
         />
-
         <MaskedBlocks
           imageData={imageData}
           displayedWidth={displayedWidth}
@@ -84,18 +77,14 @@ export default function StudyDetailScreen() {
   );
 }
 
-// const DEVICE_WIDTH = Dimensions.get("window").width;
 const styles = StyleSheet.create({
-  container: {
+  rootContainer: {
     flex: 1,
     backgroundColor: "#fff",
   },
   imageContainer: {
+    flex: 1,
     position: "relative",
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
   },
   image: {
     width: "100%",

@@ -4,8 +4,7 @@ export default function StudyLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: "#25292e" },
-        headerTintColor: "#fff",
+        headerShown: false,
       }}
     />
   );

@@ -1,11 +1,5 @@
-import React, { useState, useRef, useMemo } from "react";
-import {
-  StyleSheet,
-  Dimensions,
-  View,
-  Image,
-  LayoutChangeEvent,
-} from "react-native";
+import React, { useState, useRef } from "react";
+import { StyleSheet, Image, View, LayoutChangeEvent } from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -109,19 +103,14 @@ export default function ImageMaskDrawerRect({
   return (
     <GestureHandlerRootView style={styles.container}>
       <GestureDetector gesture={panGesture}>
-        <View style={styles.container} onLayout={onImageLayout}>
+        <View>
           <Image
+            onLayout={onImageLayout}
             source={{ uri: imageUri }}
             style={styles.image}
             resizeMode="contain"
           />
-          <Svg
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-            }}
-          >
+          <Svg style={StyleSheet.absoluteFill}>
             {/* 既存マスクの表示 */}
             {rectMasks.map((r, i) => {
               // 相対座標 -> 実際の座標に変換
@@ -176,12 +165,8 @@ export default function ImageMaskDrawerRect({
   );
 }
 
-const DEVICE_WIDTH = Dimensions.get("window").width;
-const DEVICE_HEIGHT = Dimensions.get("window").height;
 const styles = StyleSheet.create({
   container: {
-    width: DEVICE_WIDTH,
-    height: DEVICE_HEIGHT,
     flex: 1,
   },
   imageContainer: {
@@ -193,15 +178,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   image: {
-    position: "relative",
     width: "100%",
     height: "100%",
-  },
-  box: {
-    position: "relative",
-    width: 100,
-    height: 100,
-    backgroundColor: "#b58df1",
-    borderRadius: 20,
   },
 });

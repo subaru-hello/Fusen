@@ -7,18 +7,19 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#ffd33d",
-        headerStyle: { backgroundColor: "#25292e" },
-        headerShadowVisible: false,
-        headerTintColor: "#fff",
-        tabBarStyle: { backgroundColor: "#25292e" },
+        headerShown: false,
+        // tabBarActiveTintColor: "#ffd33d",
+        // headerStyle: { backgroundColor: "#25292e" },
+        // headerShadowVisible: false,
+        // headerTintColor: "#fff",
+        // tabBarStyle: { backgroundColor: "#25292e" },
       }}
     >
       {/* Homeタブ */}
       <Tabs.Screen
         name="index" // => app/(tabs)/index.tsx が読み込まれる
         options={{
-          title: "Home",
+          title: "",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "home-sharp" : "home-outline"}
@@ -30,10 +31,10 @@ export default function TabLayout() {
       />
 
       {/* 作成タブ */}
-      <Tabs.Screen
+      {/* <Tabs.Screen
         name="create" // => app/(tabs)/create.tsx が読み込まれる
         options={{
-          title: "Create",
+          title: "",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "add-circle" : "add-circle-outline"}
@@ -42,13 +43,13 @@ export default function TabLayout() {
             />
           ),
         }}
-      />
+      /> */}
 
       {/* 勉強タブ */}
       <Tabs.Screen
-        name="study" // => app/(tabs)/study/_layout.tsx が呼ばれる（さらにその下のindex.tsxなどへ）
+        name="study/index" // => app/(tabs)/study/_layout.tsx が呼ばれる（さらにその下のindex.tsxなどへ）
         options={{
-          title: "Study",
+          title: "",
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? "book" : "book-outline"}
