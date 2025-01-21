@@ -47,7 +47,7 @@ export default function TabLayout() {
 
       {/* 勉強タブ */}
       <Tabs.Screen
-        name="study/index" // => app/(tabs)/study/_layout.tsx が呼ばれる（さらにその下のindex.tsxなどへ）
+        name="study" // => app/(tabs)/study/_layout.tsx が呼ばれる（さらにその下のindex.tsxなどへ）
         options={{
           title: "",
           tabBarIcon: ({ color, focused }) => (

@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { View, Text, Button, StyleSheet } from "react-native";
+import { View, Text, Button, StyleSheet, TouchableOpacity } from "react-native";
 import ImageMaskDrawer from "@/components/organisms/study/ImageMaskDrawer";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { NON_CUSTOMER_FLASH_CARD_KEY } from "@/constants";
 import { getValueFor, saveToLocalStorage } from "@/lib/storage";
 import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function CreateScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -24,6 +26,9 @@ export default function CreateScreen() {
       setSelectedImage(result.assets[0]?.uri);
     }
   };
+  useEffect(() => {
+    pickImage();
+  }, []);
 
   const handleSaveMaskData = async () => {
     if (!selectedImage) return;
@@ -65,17 +70,46 @@ export default function CreateScreen() {
         画像を選択したらマスク機能表示 
       */}
       {!selectedImage ? (
-        <Button title="勉強用の画像を選択" onPress={pickImage} />
+        <>
+          <Text style={styles.selectImageText}>
+            右下のボタンを押して、画像を選択しよう
+          </Text>
+          <TouchableOpacity style={styles.fab} onPress={pickImage}>
+            {/* アイコンなどを表示。Ionicons などを使っても良い */}
+            <Ionicons name="add" size={32} color="#fff" />
+          </TouchableOpacity>
+        </>
       ) : (
         <>
-          <Button title="画像登録" onPress={handleSaveMaskData} />
-          <Text>隠したい部分をなぞってね</Text>
           <View style={styles.imageContainer}>
             <ImageMaskDrawer
               imageUri={selectedImage}
               rectMasks={maskedData}
               onChangeMaskData={setMaskedData}
             />
+          </View>
+          <View style={styles.overlayButtonContainer}>
+            {/* 別の画像を選択するボタン */}
+            <TouchableOpacity style={styles.button} onPress={pickImage}>
+              <Text style={styles.buttonText}>別の画像を選択</Text>
+            </TouchableOpacity>
+
+            {/* マスクを初期化するボタン */}
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => setMaskedData([])}
+            >
+              <Text style={styles.buttonText}>マスクを初期化</Text>
+            </TouchableOpacity>
+
+            {/* 保存ボタン */}
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleSaveMaskData}
+            >
+              <Text style={styles.buttonText}>保存する</Text>
+              <MaterialIcons name="save-alt" size={20} color="#fff" />
+            </TouchableOpacity>
           </View>
         </>
       )}
@@ -86,12 +120,62 @@ export default function CreateScreen() {
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    // 不要なpaddingがあれば外す
-    // padding: 20,  ← これがあると高さが変わる原因
     backgroundColor: "#fff",
   },
   imageContainer: {
     flex: 1,
     position: "relative",
+  },
+  overlayButtonContainer: {
+    position: "absolute",
+    bottom: 0, // 画面下に固定
+    left: 0, // 左右に余白を持たせたいなら調整
+    right: 0,
+    flexDirection: "row", // 横並びにする
+    alignItems: "center", // 垂直方向のセンタリング
+    justifyContent: "center", // 水平方向の配置（centerだと真ん中寄せ）
+    padding: 10,
+    borderRadius: 8,
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#f57c00",
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    marginRight: 6,
+  },
+  saveText: {
+    marginRight: 12, // アイコンとの間に適度な余白
+    fontSize: 16,
+  },
+  selectImageText: {
+    alignItems: "center",
+    margin: "auto",
+  }, // 右下に表示する丸ボタン
+  fab: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30, // 高さ/2 で丸に
+
+    backgroundColor: "#f57c00",
+    alignItems: "center",
+    justifyContent: "center",
+
+    // iOS向けシャドウ
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+
+    // Android向けシャドウ
+    elevation: 5,
   },
 });

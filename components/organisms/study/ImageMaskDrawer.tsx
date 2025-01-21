@@ -1,13 +1,14 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { StyleSheet, Image, View, LayoutChangeEvent } from "react-native";
 import {
   Gesture,
   GestureDetector,
   GestureHandlerRootView,
+  TouchableOpacity,
 } from "react-native-gesture-handler";
-
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { RectMask } from "@/types";
-import Svg, { Rect, Text } from "react-native-svg";
+import Svg, { Circle, Line, Rect, Text } from "react-native-svg";
 
 type Props = {
   imageUri: string;
@@ -20,147 +21,162 @@ export default function ImageMaskDrawerRect({
   rectMasks,
   onChangeMaskData,
 }: Props) {
-  const [displayedHeight, setDisplayedHeight] = useState(0);
-  const [displayedWidth, setDisplayedWidth] = useState(0);
-  // ドラッグ中の一時的な「絶対座標」(スクリーン座標)
-  const startPos = useRef({ x: 0, y: 0 });
+  const [imgWidth, setImgWidth] = useState(0);
+  const [imgHeight, setImgHeight] = useState(0);
   const [currentRect, setCurrentRect] = useState<{
     startX: number;
     startY: number;
     endX: number;
     endY: number;
   } | null>(null);
-  // ピンチによるズーム量を管理
-  const scaleValue = 1;
 
+  // 親Viewではなく、画像とSVGをひとまとめにして onLayout で width/height を取得
   const onImageLayout = (e: LayoutChangeEvent) => {
     const { width, height } = e.nativeEvent.layout;
-    setDisplayedWidth(width);
-    setDisplayedHeight(height);
+    console.log("Displayed image size:", width, height);
+    setImgWidth(width);
+    setImgHeight(height);
   };
-  const handleRemoveRectangle = (id: number) => {
-    const removedRectMasks = rectMasks.filter((_, i) => i !== id);
-    onChangeMaskData(removedRectMasks);
-  };
+
   const panGesture = Gesture.Pan()
-    .runOnJS(true) // GestureはUIスレッドで動くためメインスレッドへアクセスするためにrunOnJSをtrueにする必要がある
+    .runOnJS(true)
     .onBegin((e) => {
-      console.log("onBegin", e);
-      const { x, y } = e;
-      const initialx = x;
-      const initialy = y;
-      startPos.current = { x, y };
+      // 画像領域の left/top は 0, right は imgWidth, bottom は imgHeight として扱う
+      if (e.x < 0 || e.x > imgWidth || e.y < 0 || e.y > imgHeight) {
+        // 画像枠外で開始されたらジェスチャ無効
+        return;
+      }
+
+      // 画像枠内ならドラッグ開始
       setCurrentRect({
-        startX: initialx,
-        startY: initialy,
-        endX: initialx,
-        endY: initialy,
+        startX: e.x,
+        startY: e.y,
+        endX: e.x,
+        endY: e.y,
       });
     })
     .onUpdate((e) => {
-      console.log("onUpdate", e);
-      const { x, y } = e;
-      const endX = x;
-      const endY = y;
-      // ドラッグ中の点線を表示させるためにonEndではなくonUpdateでcurrentRectを更新している
-      if (currentRect) {
-        setCurrentRect({
-          startX: startPos.current.x,
-          startY: startPos.current.y,
-          endX,
-          endY,
-        });
-      }
+      // すでにドラッグ開始しているときだけ更新
+      setCurrentRect((prev) => {
+        if (!prev) return null;
+
+        // ここでも範囲をはみ出さないように x,y をクランプする
+        const clampedX = Math.min(Math.max(e.x, 0), imgWidth);
+        const clampedY = Math.min(Math.max(e.y, 0), imgHeight);
+
+        return {
+          ...prev,
+          endX: clampedX,
+          endY: clampedY,
+        };
+      });
     })
-    .onEnd((e) => {
-      if (!currentRect || displayedWidth === 0 || displayedHeight === 0) {
+    .onEnd(() => {
+      if (!currentRect || imgWidth === 0 || imgHeight === 0) {
         setCurrentRect(null);
         return;
       }
-      console.log("onEnd", e);
+
       const { startX, startY, endX, endY } = currentRect;
+      // 画像に対する相対座標へ変換するロジックはそのまま
+      const x1 = startX / imgWidth;
+      const y1 = startY / imgHeight;
+      const x2 = endX / imgWidth;
+      const y2 = endY / imgHeight;
 
-      // いま表示されている見かけ上は scaleValue倍になっている。
-      // つまり "スクリーン座標" (scaled) を "実画像座標" に戻すには 1/scaleValue する
-      const realStartX = startX / scaleValue;
-      const realStartY = startY / scaleValue;
-      const realEndX = endX / scaleValue;
-      const realEndY = endY / scaleValue;
-
-      // 画像に対する相対座標(0~1)に変換
-      const x1 = realStartX / displayedWidth;
-      const y1 = realStartY / displayedHeight;
-      const x2 = realEndX / displayedWidth;
-      const y2 = realEndY / displayedHeight;
-
-      const newRect: RectMask = { x1, y1, x2, y2 };
-      const updated = [...rectMasks, newRect];
-      onChangeMaskData(updated);
-
+      onChangeMaskData([...rectMasks, { x1, y1, x2, y2 }]);
       setCurrentRect(null);
     });
 
+  // const handleCloseButton = (i: number) => {
+  //   console.log("touche", i, rectMasks);
+  //   const newArr = rectMasks.filter((_, idx) => idx !== i);
+  //   onChangeMaskData([...newArr]);
+  //   // onChangeMaskData(newArr);
+  // };
+  const handleCloseButton = (i: number) => {
+    const newArr = rectMasks.filter((_, idx) => idx !== i);
+    onChangeMaskData(newArr);
+  };
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <GestureDetector gesture={panGesture}>
-        <View>
-          <Image
-            onLayout={onImageLayout}
-            source={{ uri: imageUri }}
-            style={styles.image}
-            resizeMode="contain"
-          />
-          <Svg style={StyleSheet.absoluteFill}>
-            {/* 既存マスクの表示 */}
-            {rectMasks.map((r, i) => {
-              // 相対座標 -> 実際の座標に変換
-              const rx1 = r.x1 * displayedWidth;
-              const ry1 = r.y1 * displayedHeight;
-              const rx2 = r.x2 * displayedWidth;
-              const ry2 = r.y2 * displayedHeight;
-              const left = Math.min(rx1, rx2);
-              const top = Math.min(ry1, ry2);
-              const width = Math.abs(rx2 - rx1);
-              const height = Math.abs(ry2 - ry1);
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* 親コンテナは「配置の自由度をもたせるため」程度。 */}
+      <View style={styles.container}>
+        <GestureDetector gesture={panGesture}>
+          {/* 画像とSVGを一つのViewでラップ */}
+          <View style={styles.imageWrapper}>
+            <Image
+              onLayout={onImageLayout}
+              source={{ uri: imageUri }}
+              style={styles.image}
+              resizeMode="contain"
+            />
+            <Svg style={StyleSheet.absoluteFill}>
+              {/* 既存マスク表示 */}
+              {rectMasks.map((r, i) => {
+                const rx1 = Math.min(r.x1, r.x2) * imgWidth;
+                const ry1 = Math.min(r.y1, r.y2) * imgHeight;
+                const rx2 = Math.max(r.x1, r.x2) * imgWidth;
+                const ry2 = Math.max(r.y1, r.y2) * imgHeight;
 
-              return (
-                <React.Fragment key={i}>
-                  <Rect
-                    x={left}
-                    y={top}
-                    width={width}
-                    height={height}
-                    fill="black"
-                    //   opacity={0.7}
-                  />
-                  <Text
-                    x={left + 2}
-                    y={top + 10}
-                    fill="white"
-                    onPress={() => handleRemoveRectangle(i)}
-                  >
-                    ×
-                  </Text>
-                </React.Fragment>
-              );
-            })}
+                return (
+                  <React.Fragment key={i}>
+                    {/* 背景の黒いマスク */}
+                    <Rect
+                      x={rx1}
+                      y={ry1}
+                      width={rx2 - rx1}
+                      height={ry2 - ry1}
+                      fill="black"
+                    />
 
-            {/* ドラッグ中の点線表示 (scale適用後の画面座標) */}
-            {currentRect && (
-              <Rect
-                x={Math.min(currentRect.startX, currentRect.endX)}
-                y={Math.min(currentRect.startY, currentRect.endY)}
-                width={Math.abs(currentRect.endX - currentRect.startX)}
-                height={Math.abs(currentRect.endY - currentRect.startY)}
-                fill="none"
-                stroke="blue"
-                strokeWidth={2}
-                strokeDasharray={[5, 5]}
-              />
-            )}
-          </Svg>
-        </View>
-      </GestureDetector>
+                    {/* 白い削除アイコン */}
+                    <Circle
+                      cx={rx1 + 2} // 中心座標: Rect の位置 + アイコンの中心分
+                      cy={ry1 + 2} // 同上
+                      r={10} // 半径
+                      fill="white"
+                      onPress={() => handleCloseButton(i)}
+                    />
+                    <Line
+                      x1={rx1 - 2}
+                      y1={ry1 - 2}
+                      x2={rx1 + 6}
+                      y2={ry1 + 6}
+                      stroke="black"
+                      strokeWidth={2}
+                      onPress={() => handleCloseButton(i)}
+                    />
+                    <Line
+                      x1={rx1 + 6}
+                      y1={ry1 - 2}
+                      x2={rx1 - 2}
+                      y2={ry1 + 6}
+                      stroke="black"
+                      strokeWidth={2}
+                      onPress={() => handleCloseButton(i)}
+                    />
+                  </React.Fragment>
+                );
+              })}
+
+              {/* ドラッグ中の点線表示 */}
+              {currentRect && (
+                <Rect
+                  x={Math.min(currentRect.startX, currentRect.endX)}
+                  y={Math.min(currentRect.startY, currentRect.endY)}
+                  width={Math.abs(currentRect.endX - currentRect.startX)}
+                  height={Math.abs(currentRect.endY - currentRect.startY)}
+                  fill="none"
+                  stroke="blue"
+                  strokeWidth={2}
+                  strokeDasharray={[5, 5]}
+                />
+              )}
+            </Svg>
+          </View>
+        </GestureDetector>
+      </View>
     </GestureHandlerRootView>
   );
 }
@@ -169,12 +185,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  imageContainer: {
+  imageWrapper: {
+    // ここで onLayout を使って実際の width/height を取得
     position: "relative",
-    alignItems: "center",
     width: "100%",
     height: "100%",
-    justifyContent: "center",
+    alignSelf: "center", // 横中央寄せ (必要に応じて)
+    flex: 1,
     overflow: "hidden",
   },
   image: {

@@ -12,6 +12,7 @@ import { Link, useFocusEffect, useRouter } from "expo-router";
 import { NON_CUSTOMER_FLASH_CARD_KEY } from "@/constants";
 import { TImage } from "@/types";
 import { getValueFor, saveToLocalStorage } from "@/lib/storage";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function StudyListScreen() {
   const [imageList, setImageList] = useState<TImage[]>([]);
@@ -58,13 +59,6 @@ export default function StudyListScreen() {
 
   return (
     <View style={styles.container}>
-      {/* 画像登録ボタン */}
-      <TouchableOpacity
-        style={styles.registerButton}
-        onPress={() => router.push("/study/create")} // create.tsx へ遷移
-      >
-        <Text style={styles.registerButtonText}>画像を登録</Text>
-      </TouchableOpacity>
       <FlatList
         data={imageList}
         keyExtractor={(item) => item.id.toString()}
@@ -105,9 +99,17 @@ export default function StudyListScreen() {
                 />
               </Link>
             </View>
+            {/* 画面右下に重ねる丸いプラスボタン */}
           </View>
         )}
       />
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push("/study/create")}
+      >
+        {/* アイコンなどを表示。Ionicons などを使っても良い */}
+        <Ionicons name="add" size={32} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -166,5 +168,27 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  // 右下に表示する丸ボタン
+  fab: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30, // 高さ/2 で丸に
+
+    backgroundColor: "#f57c00",
+    alignItems: "center",
+    justifyContent: "center",
+
+    // iOS向けシャドウ
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+
+    // Android向けシャドウ
+    elevation: 5,
   },
 });
