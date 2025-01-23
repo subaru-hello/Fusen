@@ -30,24 +30,9 @@ export default function TabLayout() {
         }}
       />
 
-      {/* 作成タブ */}
-      {/* <Tabs.Screen
-        name="create" // => app/(tabs)/create.tsx が読み込まれる
-        options={{
-          title: "",
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "add-circle" : "add-circle-outline"}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      /> */}
-
       {/* 勉強タブ */}
       <Tabs.Screen
-        name="study" // => app/(tabs)/study/_layout.tsx が呼ばれる（さらにその下のindex.tsxなどへ）
+        name="study"
         options={{
           title: "",
           tabBarIcon: ({ color, focused }) => (

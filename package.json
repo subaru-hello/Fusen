@@ -1,9 +1,10 @@
 {
-  "name": "fusen",
+  "name": "kakuStudy",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
     "start": "expo start",
+    "build": "eas build:configureios &&  eas build --platform ios",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -45,7 +46,8 @@
     "react-native-svg": "15.8.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
-    "expo-secure-store": "~14.0.0"
+    "expo-secure-store": "~14.0.0",
+    "expo-video": "~2.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -27,6 +27,7 @@ export default function CreateScreen() {
     }
   };
   useEffect(() => {
+    //   router.push("/study/index");
     pickImage();
   }, []);
 
@@ -65,17 +66,12 @@ export default function CreateScreen() {
 
   return (
     <View style={styles.rootContainer}>
-      {/* 
-        画像を未選択ならボタン表示、
-        画像を選択したらマスク機能表示 
-      */}
       {!selectedImage ? (
         <>
           <Text style={styles.selectImageText}>
             右下のボタンを押して、画像を選択しよう
           </Text>
           <TouchableOpacity style={styles.fab} onPress={pickImage}>
-            {/* アイコンなどを表示。Ionicons などを使っても良い */}
             <Ionicons name="add" size={32} color="#fff" />
           </TouchableOpacity>
         </>

@@ -66,7 +66,7 @@ export default function StudyListScreen() {
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
             {/* ID表示とリンク */}
-            <Link
+            {/* <Link
               key={item.id}
               href={{
                 pathname: "/study/[id]",
@@ -74,7 +74,7 @@ export default function StudyListScreen() {
               }}
             >
               <Text style={styles.itemText}>画像ID: {item.id}</Text>
-            </Link>
+            </Link> */}
 
             <View style={styles.imageContainer}>
               {/* 左上のバツボタン */}
@@ -99,7 +99,6 @@ export default function StudyListScreen() {
                 />
               </Link>
             </View>
-            {/* 画面右下に重ねる丸いプラスボタン */}
           </View>
         )}
       />

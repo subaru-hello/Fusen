@@ -1,45 +1,106 @@
 import Ionicons from "@expo/vector-icons/build/Ionicons";
 import { router } from "expo-router";
-import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { useVideoPlayer, VideoView, VideoSource } from "expo-video";
+import { useEvent } from "expo";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Button,
+  FlatList,
+} from "react-native";
+// import {Mp4Video} from "./test.mp4";
+// const videoSource =
+//   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+const video1: VideoSource = require("../../assets/videos/top_video_concurrency_register.mp4");
+const video2: VideoSource = require("../../assets/videos/top_video_concurrency_study.mp4");
+const video3: VideoSource = require("../../assets/videos/top_video_list.mp4");
 
 export default function Index() {
+  const player = useVideoPlayer(video1, (player) => {
+    player.loop = true;
+    player.play();
+  });
+  const player2 = useVideoPlayer(video2, (player) => {
+    player.loop = true;
+    player.play();
+  });
+  const player3 = useVideoPlayer(video3, (player) => {
+    player.loop = true;
+    player.play();
+  });
+  // const { isPlaying } = useEvent(player, "playingChange", {
+  //   isPlaying: player.playing,
+  // });
+
+  const waysToUseApp = [
+    {
+      title: "隠して登録",
+      content: () => (
+        <View>
+          <Text>
+            好きな画像を登録できるよ。{"\n"}隠したい箇所を指でなぞろう。
+          </Text>
+          <VideoView
+            style={styles.video}
+            player={player}
+            allowsFullscreen
+            allowsPictureInPicture
+          />
+        </View>
+      ),
+    },
+    {
+      title: "隠して学習",
+      content: () => (
+        <View style={{ display: "flex" }}>
+          <Text>画像詳細では、隠した部分のつけ外しができるよ。</Text>
+          <VideoView
+            style={styles.video}
+            player={player2}
+            allowsFullscreen
+            allowsPictureInPicture
+          />
+        </View>
+      ),
+    },
+    {
+      title: "隠した一覧",
+      content: () => (
+        <View>
+          <Text>登録した画像は一覧で確認できるよ。</Text>
+          <VideoView
+            style={styles.video}
+            player={player3}
+            allowsFullscreen
+            allowsPictureInPicture
+          />
+        </View>
+      ),
+    },
+  ];
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>このアプリの使い方</Text>
-
-      {/* Step1 */}
-      <View style={styles.stepContainer}>
-        <Text style={styles.stepTitle}>Step1 画像を登録</Text>
-        <Text style={styles.stepContent}>
-          画面右下のプラスボタンを押して画像を選択。
-          {"\n"}
-          隠したい箇所を指でなぞってマスクをかけよう。
-          {"\n"}
-          全て隠せたら保存を押してね！
-        </Text>
+    <View style={{ flex: 1, alignItems: "center" }}>
+      <View style={{ marginBottom: 10, marginTop: 10 }}>
+        <Text style={styles.title}>隠スタディの使い方</Text>
       </View>
-
-      {/* Step2 */}
-      <View style={styles.stepContainer}>
-        <Text style={styles.stepTitle}>Step2 登録画像一覧ページ</Text>
-        <Text style={styles.stepContent}>
-          登録した画像を一覧で確認できるよ。
-        </Text>
-      </View>
-
-      {/* Step3 */}
-      <View style={styles.stepContainer}>
-        <Text style={styles.stepTitle}>Step3 画像詳細ページ</Text>
-        <Text style={styles.stepContent}>
-          マスクのON/OFFはタッチで切り替えられるよ。
-        </Text>
-      </View>
-
-      {/* 画像登録ボタン */}
+      <FlatList
+        style={styles.container}
+        data={waysToUseApp}
+        keyExtractor={(_, index) => `key-${index}`}
+        renderItem={({ item }) => (
+          <View style={styles.stepContainer}>
+            <Text style={styles.stepTitle}>{item.title}</Text>
+            <View style={styles.stepContent}>{item.content()}</View>
+          </View>
+        )}
+      />
       <TouchableOpacity
         style={styles.fab}
         onPress={() => router.push("/study/create")}
       >
+        {/* アイコンなどを表示。Ionicons などを使っても良い */}
         <Ionicons name="add" size={32} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -50,21 +111,25 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
-    alignItems: "center",
-    paddingTop: 40,
+    // display: "flex",
+    // backgroundColor: "white",
+    // alignItems: "center",
+    paddingTop: 20,
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
+    marginTop: 20,
     marginBottom: 20,
   },
   stepContainer: {
-    width: "90%",
-    marginBottom: 16,
-    padding: 12,
-    backgroundColor: "#f9f9f9",
+    flexDirection: "column",
+    // width: "90%",
+    marginBottom: 8,
+    // padding: 12,
+    // backgroundColor: "#f9f9f9",
     borderRadius: 8,
+    alignItems: "center",
   },
   stepTitle: {
     fontSize: 16,
@@ -72,8 +137,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   stepContent: {
-    fontSize: 14,
-    lineHeight: 20,
+    // fontSize: 14,
+    // lineHeight: 20,
   },
   fab: {
     position: "absolute",
@@ -92,5 +157,30 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     // Android向けシャドウ
     elevation: 5,
+  },
+  contentContainer: {
+    flex: 1,
+    padding: 10,
+    // alignItems: "center",
+    // justifyContent: "certer",
+    paddingHorizontal: 50,
+  },
+  video: {
+    height: 275,
+  },
+  controlsContainer: {
+    padding: 10,
+  },
+  button: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#f57c00",
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    marginRight: 6,
   },
 });

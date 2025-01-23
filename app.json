@@ -1,23 +1,23 @@
 {
   "expo": {
-    "name": "Fusen",
-    "slug": "Fusen",
+    "name": "kakuStudy",
+    "slug": "kakuStudy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "haritai.kiritai.Fusen"
+      "bundleIdentifier": "com.kakustudy.kakustudy"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "haritai.kiritai.Fusen"
+      "package": "haritai.kiritai.kakuStudy"
     },
     "web": {
       "bundler": "metro",
@@ -30,11 +30,11 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/adaptive-icon.png",
-          "imageWidth": 200,
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true
