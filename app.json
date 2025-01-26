@@ -17,7 +17,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "haritai.kiritai.kakuStudy"
+      "package": "com.kakustudy.kakustudy"
     },
     "web": {
       "bundler": "metro",
@@ -44,8 +44,12 @@
         "origin": false
       },
       "eas": {
-        "projectId": "b2e47cef-8bda-4faa-a15a-913224a8b96c"
+        "projectId": "5733a484-e6d6-49b4-8a84-0e88df0c2fdb"
       }
+    },
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain"
     }
   }
 }
