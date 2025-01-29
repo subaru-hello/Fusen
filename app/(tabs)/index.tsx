@@ -1,18 +1,14 @@
 import Ionicons from "@expo/vector-icons/build/Ionicons";
 import { router } from "expo-router";
 import { useVideoPlayer, VideoView, VideoSource } from "expo-video";
-import { useEvent } from "expo";
 import {
   View,
   StyleSheet,
   Text,
   TouchableOpacity,
-  Button,
   FlatList,
+  SafeAreaView,
 } from "react-native";
-// import {Mp4Video} from "./test.mp4";
-// const videoSource =
-//   "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
 const video1: VideoSource = require("../../assets/videos/top_video_concurrency_register.mp4");
 const video2: VideoSource = require("../../assets/videos/top_video_concurrency_study.mp4");
 const video3: VideoSource = require("../../assets/videos/top_video_list.mp4");
@@ -30,9 +26,6 @@ export default function Index() {
     player.loop = true;
     player.play();
   });
-  // const { isPlaying } = useEvent(player, "playingChange", {
-  //   isPlaying: player.playing,
-  // });
 
   const waysToUseApp = [
     {
@@ -81,14 +74,16 @@ export default function Index() {
     },
   ];
   return (
-    <View style={{ flex: 1, alignItems: "center" }}>
-      <View style={{ marginBottom: 10, marginTop: 10 }}>
+    <SafeAreaView style={{ flex: 1, alignItems: "center" }}>
+      <View style={{ marginBottom: 10 }}>
         <Text style={styles.title}>隠スタディの使い方</Text>
       </View>
       <FlatList
         style={styles.container}
         data={waysToUseApp}
         keyExtractor={(_, index) => `key-${index}`}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
           <View style={styles.stepContainer}>
             <Text style={styles.stepTitle}>{item.title}</Text>
@@ -103,7 +98,7 @@ export default function Index() {
         {/* アイコンなどを表示。Ionicons などを使っても良い */}
         <Ionicons name="add" size={32} color="#fff" />
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -111,10 +106,6 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // display: "flex",
-    // backgroundColor: "white",
-    // alignItems: "center",
-    paddingTop: 20,
   },
   title: {
     fontSize: 20,
@@ -124,10 +115,7 @@ const styles = StyleSheet.create({
   },
   stepContainer: {
     flexDirection: "column",
-    // width: "90%",
     marginBottom: 8,
-    // padding: 12,
-    // backgroundColor: "#f9f9f9",
     borderRadius: 8,
     alignItems: "center",
   },
@@ -136,10 +124,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 6,
   },
-  stepContent: {
-    // fontSize: 14,
-    // lineHeight: 20,
-  },
+  stepContent: {},
   fab: {
     position: "absolute",
     bottom: 20,
@@ -161,8 +146,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     padding: 10,
-    // alignItems: "center",
-    // justifyContent: "certer",
     paddingHorizontal: 50,
   },
   video: {

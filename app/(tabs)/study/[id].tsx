@@ -6,6 +6,8 @@ import {
   LayoutChangeEvent,
   GestureResponderEvent,
   Text,
+  SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { NON_CUSTOMER_FLASH_CARD_KEY } from "@/constants";
@@ -39,7 +41,11 @@ export default function StudyDetailScreen() {
   }, []);
 
   if (!imageData) {
-    return <Text>ロード中...</Text>;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
+    );
   }
 
   const toggleRectVisibility = (e: GestureResponderEvent, index: number) => {
@@ -58,22 +64,24 @@ export default function StudyDetailScreen() {
   };
 
   return (
-    <View style={styles.rootContainer}>
-      <View style={styles.imageContainer} onLayout={onImageLayout}>
-        <Image
-          source={{ uri: imageData.uri }}
-          style={styles.image}
-          resizeMode="contain"
-        />
-        <MaskedBlocks
-          imageData={imageData}
-          displayedWidth={displayedWidth}
-          displayedHeight={displayedHeight}
-          toggleRectVisibility={toggleRectVisibility}
-          hiddenRects={hiddenRects}
-        />
+    <SafeAreaView>
+      <View style={styles.rootContainer}>
+        <View style={styles.imageContainer} onLayout={onImageLayout}>
+          <Image
+            source={{ uri: imageData.uri }}
+            style={styles.image}
+            resizeMode="contain"
+          />
+          <MaskedBlocks
+            imageData={imageData}
+            displayedWidth={displayedWidth}
+            displayedHeight={displayedHeight}
+            toggleRectVisibility={toggleRectVisibility}
+            hiddenRects={hiddenRects}
+          />
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -85,6 +93,14 @@ const styles = StyleSheet.create({
   imageContainer: {
     flex: 1,
     position: "relative",
+  },
+  loadingContainer: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // 半透明の背景
+    width: "100%",
+    height: "100%",
   },
   image: {
     width: "100%",

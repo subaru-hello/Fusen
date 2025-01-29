@@ -7,6 +7,8 @@ import {
   Image,
   Alert,
   TouchableOpacity,
+  ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { Link, useFocusEffect, useRouter } from "expo-router";
 import { NON_CUSTOMER_FLASH_CARD_KEY } from "@/constants";
@@ -44,38 +46,38 @@ export default function StudyListScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
-        <Text>読み込み中...</Text>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007bff" />
+        {/* <Text style={styles.loadingText}>読み込み中...</Text> */}
       </View>
     );
   }
   if (imageList.length === 0) {
     return (
       <View style={styles.container}>
-        <Text>登録された画像がありません</Text>
+        <View style={styles.noItemsContainer}>
+          <Text>画像がありません</Text>
+        </View>
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => router.push("/study/create")}
+        >
+          <Ionicons name="add" size={32} color="#fff" />
+        </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <FlatList
         data={imageList}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
           <View style={styles.itemContainer}>
-            {/* ID表示とリンク */}
-            {/* <Link
-              key={item.id}
-              href={{
-                pathname: "/study/[id]",
-                params: { id: item.id },
-              }}
-            >
-              <Text style={styles.itemText}>画像ID: {item.id}</Text>
-            </Link> */}
-
             <View style={styles.imageContainer}>
               {/* 左上のバツボタン */}
               <TouchableOpacity
@@ -106,10 +108,9 @@ export default function StudyListScreen() {
         style={styles.fab}
         onPress={() => router.push("/study/create")}
       >
-        {/* アイコンなどを表示。Ionicons などを使っても良い */}
         <Ionicons name="add" size={32} color="#fff" />
       </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -117,6 +118,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  noItemsContainer: {
+    flex: 1,
+    justifyContent: "center", // 縦方向の中央揃え
+    alignItems: "center", // 横方向の中央揃え
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+  },
+  loadingContainer: {
+    position: "absolute",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // 半透明の背景
+    width: "100%",
+    height: "100%",
   },
   listContent: {
     paddingVertical: 10,

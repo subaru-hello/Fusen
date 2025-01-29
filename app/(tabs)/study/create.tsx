@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { View, Text, Button, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 import ImageMaskDrawer from "@/components/organisms/study/ImageMaskDrawer";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { NON_CUSTOMER_FLASH_CARD_KEY } from "@/constants";
@@ -11,8 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 export default function CreateScreen() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [maskedData, setMaskedData] = useState<any[]>([]);
-  const [title, setTitle] = useState("");
-  // 会員: true。非会員: false
+  // TODO: 会員: true。非会員: falseになるようにする
   const isRegisteredMember = true;
 
   const pickImage = async () => {
@@ -27,7 +32,6 @@ export default function CreateScreen() {
     }
   };
   useEffect(() => {
-    //   router.push("/study/index");
     pickImage();
   }, []);
 
@@ -65,7 +69,7 @@ export default function CreateScreen() {
   };
 
   return (
-    <View style={styles.rootContainer}>
+    <SafeAreaView style={styles.rootContainer}>
       {!selectedImage ? (
         <>
           <Text style={styles.selectImageText}>
@@ -109,7 +113,7 @@ export default function CreateScreen() {
           </View>
         </>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
