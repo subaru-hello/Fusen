@@ -5,7 +5,6 @@ import {
   StyleSheet,
   LayoutChangeEvent,
   GestureResponderEvent,
-  Text,
   SafeAreaView,
   ActivityIndicator,
 } from "react-native";
@@ -64,22 +63,20 @@ export default function StudyDetailScreen() {
   };
 
   return (
-    <SafeAreaView>
-      <View style={styles.rootContainer}>
-        <View style={styles.imageContainer} onLayout={onImageLayout}>
-          <Image
-            source={{ uri: imageData.uri }}
-            style={styles.image}
-            resizeMode="contain"
-          />
-          <MaskedBlocks
-            imageData={imageData}
-            displayedWidth={displayedWidth}
-            displayedHeight={displayedHeight}
-            toggleRectVisibility={toggleRectVisibility}
-            hiddenRects={hiddenRects}
-          />
-        </View>
+    <SafeAreaView style={styles.rootContainer}>
+      <View style={styles.imageContainer} onLayout={onImageLayout}>
+        <Image
+          source={{ uri: imageData.uri }}
+          style={styles.image}
+          resizeMode="contain"
+        />
+        <MaskedBlocks
+          imageData={imageData}
+          displayedWidth={displayedWidth}
+          displayedHeight={displayedHeight}
+          toggleRectVisibility={toggleRectVisibility}
+          hiddenRects={hiddenRects}
+        />
       </View>
     </SafeAreaView>
   );
