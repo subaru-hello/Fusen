@@ -1,4 +1,6 @@
 # 隠Study
+App Store：https://apps.apple.com/app/隠スタディ/id6740914306
+<img width="1024" alt="image" src="https://github.com/user-attachments/assets/477ff5ff-13ce-430b-b9e6-34d2f4588cc0" />
 
 「隠して覚える、思い出して定着！」
 
