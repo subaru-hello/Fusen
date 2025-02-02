@@ -38,3 +38,14 @@ App Store：https://apps.apple.com/app/隠スタディ/id6740914306
 <br>
 ↓以下からダウンロードできます！！是非！！<br>
 https://apps.apple.com/app/隠スタディ/id6740914306
+
+### 使用技術
+ライブラリ
+- React Native
+- expo-image-picker
+- react-native-gesture-handler
+- expo-router
+
+フレームワーク
+- Expo
+
